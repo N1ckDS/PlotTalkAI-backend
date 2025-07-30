@@ -33,7 +33,7 @@ class Users:
                 data_json = data
             self.db.cursor.execute(
                 """
-                INSERT INTO users (mail, name, surname, password_hash, is_deleted, data)
+                INSERT INTO users_data (mail, name, surname, password_hash, is_deleted, data)
                 VALUES (%s, %s, %s, %s, %s, %s)
                 RETURNING id;
                 """,
@@ -50,7 +50,7 @@ class Users:
 
     def get_user_by_mail(self, mail: EmailStr):
         try:
-            self.db.cursor.execute("SELECT * FROM users WHERE mail = %s;", (mail,))
+            self.db.cursor.execute("SELECT * FROM users_data WHERE mail = %s;", (mail,))
             user = self.db.cursor.fetchone()
             logger.info(f"Received user by mail: {mail}")
             if user and user.get('is_deleted'):
@@ -61,7 +61,7 @@ class Users:
 
     def get_user_by_id(self, user_id: int):
         try:
-            self.db.cursor.execute("SELECT * FROM users WHERE id = %s;", (user_id,))
+            self.db.cursor.execute("SELECT * FROM users_data WHERE id = %s;", (user_id,))
             user = self.db.cursor.fetchone()
             logger.info(f"Received user by id: {user_id}")
             if not user and user.get('is_deleted'):
@@ -72,7 +72,7 @@ class Users:
 
     def get_user_data(self, user_id: int):
         try:
-            self.db.cursor.execute("SELECT data FROM users WHERE id = %s;", (user_id,))
+            self.db.cursor.execute("SELECT data FROM users_data WHERE id = %s;", (user_id,))
             row = self.db.cursor.fetchone()
             logger.info(f"Received data for user {user_id}")
             return row["data"] if row else None
@@ -82,7 +82,7 @@ class Users:
     def update_user_data(self, user_id: int, new_data: dict):
         try:
             self.db.cursor.execute(
-                "UPDATE users SET data = %s WHERE id = %s;",
+                "UPDATE users_data SET data = %s WHERE id = %s;",
                 (json.dumps(new_data), user_id)
             )
             self.db.conn.commit()
@@ -96,7 +96,7 @@ class Users:
     def update_user_name(self, user_id: int, new_name: str, new_surname: str):
         try:
             self.db.cursor.execute(
-                "UPDATE users SET name = %s, surname = %s WHERE id = %s;",
+                "UPDATE users_data SET name = %s, surname = %s WHERE id = %s;",
                 (new_name, new_surname, user_id)
             )
             self.db.conn.commit()
@@ -109,7 +109,7 @@ class Users:
     def update_user_password(self, user_id: int, new_pass: str):
         try:
             self.db.cursor.execute(
-                "UPDATE users SET password_hash = %s WHERE id = %s;",
+                "UPDATE users_data SET password_hash = %s WHERE id = %s;",
                 (new_pass, user_id)
             )
             self.db.conn.commit()
@@ -121,7 +121,7 @@ class Users:
 
     def delete_user(self, user_id: int):
         try:
-            self.db.cursor.execute("UPDATE users SET is_deleted = %s WHERE id = %s;",
+            self.db.cursor.execute("UPDATE users_data SET is_deleted = %s WHERE id = %s;",
                 (True, user_id))
             self.db.conn.commit()
             logger.info(f"User {user_id} deleted")
@@ -152,7 +152,7 @@ class Users:
                 data_json = data
             self.db.cursor.execute(
                 """
-                UPDATE users SET name = %s, surname = %s, password_hash = %s, is_deleted = %s, data = %s WHERE mail = %s RETURNING id;
+                UPDATE users_data SET name = %s, surname = %s, password_hash = %s, is_deleted = %s, data = %s WHERE mail = %s RETURNING id;
                 """,
                 (name, surname, password_hash, False, data_json, mail)
             )
