@@ -53,7 +53,7 @@ class Users:
             self.db.cursor.execute("SELECT * FROM users_data WHERE mail = %s;", (mail,))
             user = self.db.cursor.fetchone()
             logger.info(f"Received user by mail: {mail}")
-            if user and user.get('is_deleted'):
+            if not user or user.get('is_deleted'):
                 return None
             return user
         except Exception as e:
@@ -64,7 +64,7 @@ class Users:
             self.db.cursor.execute("SELECT * FROM users_data WHERE id = %s;", (user_id,))
             user = self.db.cursor.fetchone()
             logger.info(f"Received user by id: {user_id}")
-            if not user and user.get('is_deleted'):
+            if not user or user.get('is_deleted'):
                 return None
             return user
         except Exception as e:

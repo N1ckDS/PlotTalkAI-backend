@@ -28,8 +28,8 @@ class Auth:
 
     def login(self, mail, password):
         user = self.db.get_user_by_mail(mail)
-        print(user)
-        if not user or user.get('is_deleted'):
+        print(mail, password, user) 
+        if not user:
             raise HTTPException(401, detail="User not found")
         if not verify_password(password, user['password_hash']):
             raise HTTPException(401, detail="Wrong password")
