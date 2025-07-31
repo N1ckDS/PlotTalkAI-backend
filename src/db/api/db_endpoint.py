@@ -33,6 +33,7 @@ def get_user_by_id(user_id: int = Depends(get_current_user_id)):
 @router.get("/users/me/data", tags=["Users"])
 def get_user_data(user_id: int = Depends(get_current_user_id)):
     user = user_service.get_user_by_id(user_id)
+    print(user_id, user)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     data = user_service.get_user_data(user_id)
