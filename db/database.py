@@ -51,7 +51,7 @@ class DatabasePool:
     @classmethod
     def check_pool(cls):
         if not cls._pool:
-            cls.connect_pool()
+            cls.init_pool()
 
     @classmethod
     def get_connection(cls):
@@ -60,6 +60,11 @@ class DatabasePool:
     
     @classmethod
     def put_connection(cls, conn):
+        cls.check_pool()
+        return cls._pool.putconn(conn)
+    
+    @classmethod
+    def close_all(cls, conn):
         cls.check_pool()
         return cls._pool.putconn(conn)
 
