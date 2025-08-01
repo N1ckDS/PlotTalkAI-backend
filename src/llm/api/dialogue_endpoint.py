@@ -22,7 +22,19 @@ dialogue_controller = DialogueController()
 
 @router.post("/generate", tags=["Dialogue"])
 def generate(params: Params, user_id: int = Depends(get_current_user_id), users_service: Users = Depends(get_users_service)):
-
+    
+    game_id = params.game_id
+    scene_id = params.scene_id
+    script_id = params.script_id
+    if script_id is None:
+        print("script_id должен быть передан в params или я в чем-то ошибся, анлак", end="\n\n======\n\n")
+        raise HTTPException(status_code=400, detail="script_id должен быть передан в params или я в чем-то ошибся, анлак")
+    if game_id is None:
+        print("game_id должен быть передан в params или я в чем-то ошибся, анлак", end="\n\n======\n\n")
+        raise HTTPException(status_code=400, detail="game_id должен быть передан в params или я в чем-то ошибся, анлак")
+    if scene_id is None:
+        print("scene_id должен быть передан в params или я в чем-то ошибся, анлак", end="\n\n======\n\n")
+        raise HTTPException(status_code=400, detail="scene_id должен быть передан в params или я в чем-то ошибся, анлак")
     success = users_service.update_user_result({}, user_id, game_id, scene_id, script_id)
    
     if not success:
@@ -227,27 +239,7 @@ def generate(params: Params, user_id: int = Depends(get_current_user_id), users_
     #     a_dict = json.loads(a)
     # except Exception:
     #     raise HTTPException(status_code=500, detail="Failed to parse generated dialogue")
-    print(f"Generated  script for user: {user_id}", a, sep = "\n", end="\n\n======\n\n")
-    user_data = users_service.get_user_data(user_id)
-    if not user_data:
-        DatabasePool.put_connection(users_service.db_conn)
-        raise HTTPException(status_code=404, detail="User data not found")
-
-    if isinstance(user_data, str):
-        user_data = json.loads(user_data)
-
-    game_id = params.game_id
-    scene_id = params.scene_id
-    script_id = params.script_id
-    if script_id is None:
-        print("script_id должен быть передан в params или я в чем-то ошибся, анлак", end="\n\n======\n\n")
-        raise HTTPException(status_code=400, detail="script_id должен быть передан в params или я в чем-то ошибся, анлак")
-    if game_id is None:
-        print("game_id должен быть передан в params или я в чем-то ошибся, анлак", end="\n\n======\n\n")
-        raise HTTPException(status_code=400, detail="game_id должен быть передан в params или я в чем-то ошибся, анлак")
-    if scene_id is None:
-        print("scene_id должен быть передан в params или я в чем-то ошибся, анлак", end="\n\n======\n\n")
-        raise HTTPException(status_code=400, detail="scene_id должен быть передан в params или я в чем-то ошибся, анлак")                
+    print(f"Generated script {game_id}/{scene_id}/{script_id} for user: {user_id}", end="\n\n======\n\n")                
     
     success = users_service.update_user_result(a, user_id, game_id, scene_id, script_id)
     DatabasePool.put_connection(users_service.db_conn)

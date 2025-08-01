@@ -155,6 +155,8 @@ class Users:
         if not user_data:
             DatabasePool.put_connection(self.db_conn)
             raise HTTPException(status_code=404, detail="User data not found")
+        if isinstance(user_data, str):
+            user_data = json.loads(user_data)
         found_game = 0
         for game_index in range(len(user_data.get("games", []))):
             game = user_data["games"][game_index]
