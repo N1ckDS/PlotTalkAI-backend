@@ -52,10 +52,12 @@ class DatabasePool:
 
     @classmethod
     def get_connection(cls):
+        cls.check_pool()
         return cls._pool.getconn()
     
     @classmethod
     def put_connection(cls, conn):
+        cls.check_pool()
         return cls._pool.putconn(conn)
 
 # class Database:

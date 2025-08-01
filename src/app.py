@@ -14,6 +14,7 @@ load_dotenv(override=True)
 async def lifespan(app: FastAPI):
     # Инициализация пула при запуске
     DatabasePool.init_pool()
+    print("Pool connected")
 
     yield
     # Закрытие пула при остановке
