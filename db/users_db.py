@@ -1,7 +1,6 @@
 from pydantic import EmailStr
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from psycopg2.extensions import Connection
 from db.database import DatabasePool
 from db.logging import logger
 import json 

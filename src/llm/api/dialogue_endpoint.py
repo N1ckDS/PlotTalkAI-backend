@@ -4,12 +4,12 @@ from lib.llm.generator import Orchestrator
 from db.database import DatabasePool
 from db.users_db import Users
 from src.db.api.db_endpoint import get_current_user_id
-from psycopg2.extensions import Connection
+import psycopg2
 import json 
 import time
 router = APIRouter()
 
-def get_users_service(db_conn: Connection = Depends(DatabasePool.get_connection())):
+def get_users_service(db_conn: psycopg2.extensions.connection = Depends(DatabasePool.get_connection())):
     return Users(db_conn) 
 
 class DialogueController:
