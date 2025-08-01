@@ -50,7 +50,7 @@ class Users:
         except Exception as e:
             logger.error(f"Error when creating user {name}: {e}")
             print(f"Error when creating user {mail} ({name}): {e}", end="\n\n======\n\n")
-            if self.db_conn: 
+            if not self.db_conn.closed: 
                 self.db_conn.rollback()
             return None
 
@@ -111,7 +111,7 @@ class Users:
         except Exception as e:
             logger.error(f"Error updating data for user {user_id}: {e}")
             print(f"Error updating data for user {user_id}: {e}", end="\n\n======\n\n")
-            if self.db_conn:
+            if not self.db_conn.closed: 
                 self.db_conn.rollback()
             return False 
 
@@ -129,7 +129,7 @@ class Users:
         except Exception as e:
             logger.error(f"Error updating user name {user_id}: {e}")
             print(f"Error updating name for user {user_id}: {e}", end="\n\n======\n\n")
-            if self.db_conn:
+            if not self.db_conn.closed: 
                 self.db_conn.rollback()
             return False
 
@@ -147,7 +147,8 @@ class Users:
         except Exception as e:
             logger.error(f"Error updating password for user {user_id}: {e}")
             print(f"Error updating password for user {user_id}: {e}", end="\n\n======\n\n")
-            self.db_conn.rollback()
+            if not self.db_conn.closed: 
+                self.db_conn.rollback()
             return False
 
     def update_user_result(self, result: dict, user_id: int, game_id: int, scene_id: int, script_id: int):
@@ -202,7 +203,7 @@ class Users:
         except Exception as e:
             logger.error(f"Error deleting user {user_id}: {e}")
             print(f"Error deleting user {user_id}: {e}", end="\n\n======\n\n")
-            if self.db_conn:
+            if not self.db_conn.closed: 
                 self.db_conn.rollback()
 
     def reactivate_user(self, mail, name, surname, password_hash, data=None):
@@ -240,6 +241,6 @@ class Users:
         except Exception as e:
             logger.error(f"Error reactivating user {name}: {e}")
             print(f"Error reactivating user {mail} ({name}): {e}", end="\n\n======\n\n")
-            if self.db_conn:
+            if not self.db_conn.closed: 
                 self.db_conn.rollback()
             return None
