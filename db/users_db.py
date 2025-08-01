@@ -43,22 +43,22 @@ class Users:
                     (mail, name, surname, password_hash, is_deleted, data_json)
                 )
                 user_id = curs.fetchone().get("id")
+                self.db_conn.commit()
                 print(f"The user has been created: {user_id} ({mail}, {name})", end="\n\n======\n\n")
-                self.db.conn.commit()
                 logger.info(f"The user has been created: {user_id} ({name})")
                 return user_id
         except Exception as e:
             logger.error(f"Error when creating user {name}: {e}")
             print(f"Error when creating user {mail} ({name}): {e}", end="\n\n======\n\n")
-            if self.db.conn: 
-                self.db.conn.rollback()
+            if self.db_conn: 
+                self.db_conn.rollback()
             return None
 
     def get_user_by_mail(self, mail: EmailStr):
         try:
             with self.db_conn.cursor(cursor_factory=RealDictCursor) as curs:
                 curs.execute("SELECT * FROM users_data WHERE mail = %s;", (mail,))
-                user = self.db.cursor.fetchone()
+                user = curs.fetchone()
                 logger.info(f"Received user by mail: {mail}")
                 print(f"Received user by mail: {mail}", user, sep = "\n", end="\n\n======\n\n")
                 if not user or user.get('is_deleted'):
@@ -73,7 +73,7 @@ class Users:
         try:
             with self.db_conn.cursor(cursor_factory=RealDictCursor) as curs:
                 curs.execute("SELECT * FROM users_data WHERE id = %s;", (user_id,))
-                user = self.db.cursor.fetchone()
+                user = curs.fetchone()
                 logger.info(f"Received user by id: {user_id}")
                 print(f"Received user by id: {user_id}", user, sep = "\n", end="\n\n======\n\n")
                 if not user or user.get('is_deleted'):
@@ -88,7 +88,7 @@ class Users:
         try:
             with self.db_conn.cursor(cursor_factory=RealDictCursor) as curs:
                 curs.execute("SELECT data FROM users_data WHERE id = %s;", (user_id,))
-                row = self.db.cursor.fetchone()
+                row = curs.fetchone()
                 logger.info(f"Received data for user {user_id}")
                 print(f"Received data for user: {user_id}", row.get("data") if row else None, sep = "\n", end="\n\n======\n\n")
                 return row.get("data") if row else None
@@ -111,7 +111,8 @@ class Users:
         except Exception as e:
             logger.error(f"Error updating data for user {user_id}: {e}")
             print(f"Error updating data for user {user_id}: {e}", end="\n\n======\n\n")
-            self.db_conn.rollback()
+            if self.db_conn:
+                self.db_conn.rollback()
             return False 
 
     def update_user_name(self, user_id: int, new_name: str, new_surname: str):
@@ -128,7 +129,8 @@ class Users:
         except Exception as e:
             logger.error(f"Error updating user name {user_id}: {e}")
             print(f"Error updating name for user {user_id}: {e}", end="\n\n======\n\n")
-            self.db_conn.rollback()
+            if self.db_conn:
+                self.db_conn.rollback()
             return False
 
     def update_user_password(self, user_id: int, new_pass: str):
@@ -198,7 +200,8 @@ class Users:
         except Exception as e:
             logger.error(f"Error deleting user {user_id}: {e}")
             print(f"Error deleting user {user_id}: {e}", end="\n\n======\n\n")
-            self.db_conn.rollback()
+            if self.db_conn:
+                self.db_conn.rollback()
 
     def reactivate_user(self, mail, name, surname, password_hash, data=None):
         try:
@@ -235,5 +238,6 @@ class Users:
         except Exception as e:
             logger.error(f"Error reactivating user {name}: {e}")
             print(f"Error reactivating user {mail} ({name}): {e}", end="\n\n======\n\n")
-            self.db_conn.rollback()
+            if self.db_conn:
+                self.db_conn.rollback()
             return None

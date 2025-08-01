@@ -2,9 +2,10 @@ from fastapi import APIRouter, HTTPException, Depends, Request, Header
 
 from db.users_db import Users
 from lib.models.schemas import *
-from lib.auth.utils import decode_token, get_users_service
+from lib.auth.utils import decode_token
 import psycopg2
 from db.database import DatabasePool
+from lib.db.utils import get_users_service
 
 router = APIRouter()
 

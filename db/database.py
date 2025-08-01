@@ -6,7 +6,7 @@ import logging
 import os
 from dotenv import load_dotenv
 from urllib.parse import urlparse
-
+from fastapi import Depends
 
 load_dotenv()
 
@@ -67,6 +67,12 @@ class DatabasePool:
     def close_all(cls, conn):
         cls.check_pool()
         return cls._pool.putconn(conn)
+    
+    # @classmethod
+    # def get_cls_service(cls, target_cls):
+    #     db_conn = cls.get_connection()
+    #     return target_cls(db_conn)
+
 
 # class Database:
 #     def __init__(self):

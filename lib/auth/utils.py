@@ -10,7 +10,6 @@ import psycopg2
 from db.database import DatabasePool
 from fastapi import Depends
 from db.users_db import Users
-from lib.auth.auth import Auth
 
 load_dotenv()
 
@@ -50,8 +49,4 @@ def decode_token(token: str):
     except JWTError as e:
         raise ValueError("Invalid token") from e
     
-def get_users_service(db_conn: psycopg2.extensions.connection = Depends(DatabasePool.get_connection())):
-    return Users(db_conn) 
 
-def get_auth_service(db_conn: psycopg2.extensions.connection = Depends(DatabasePool.get_connection())):
-    return Auth(db_conn) 

@@ -1,15 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, Header, HTTPException
 from lib.models.schemas import Params
 from lib.llm.generator import Orchestrator
-from lib.auth.utils import get_users_service
 from db.database import DatabasePool
 from db.users_db import Users
 from src.db.api.db_endpoint import get_current_user_id
 import psycopg2
 import json 
 import time
+from lib.db.utils import get_users_service
 router = APIRouter()
-
 
 class DialogueController:
     def __init__(self):
@@ -22,8 +21,8 @@ class DialogueController:
 dialogue_controller = DialogueController()
 
 @router.post("/generate", tags=["Dialogue"])
-def generate(params: Params, user_id: int = Depends(get_current_user_id)):
-    users_service = get_users_service()
+def generate(params: Params, user_id: int = Depends(get_current_user_id), users_service: Users = Depends(get_users_service)):
+
     success = users_service.update_user_result({}, user_id, game_id, scene_id, script_id)
    
     if not success:
