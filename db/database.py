@@ -19,29 +19,31 @@ logging.basicConfig(
 )
 class DatabasePool:
     _pool = None
-
+    _config = None
     @classmethod
     def init_pool(cls):
-        cls.dburl = os.getenv('DATABASE_URL')
-        cls.dbname = os.getenv('DB_NAME')
-        cls.user = os.getenv('DB_USER')
-        cls.password = os.getenv('DB_PASSWORD')
-        cls.host = os.getenv('DB_HOST')
-        cls.port = int(os.getenv('DB_PORT'))
-        cls.min_conn = int(os.getenv('MIN_CONN'))
-        cls.max_conn = int(os.getenv('MAX_CONN'))
+        cls._config = {
+            'dburl': os.getenv('DATABASE_URL'),
+            'dbname': os.getenv('DB_NAME'),
+            'user': os.getenv('DB_USER'),
+            'password': os.getenv('DB_PASSWORD'),
+            'host': os.getenv('DB_HOST'),
+            'port': int(os.getenv('DB_PORT', 5432)),
+            'min_conn': int(os.getenv('MIN_CONN', 1)),
+            'max_conn': int(os.getenv('MAX_CONN', 10))
+        }
         cls.connect_pool()
     
     @classmethod
     def connect_pool(cls):
         try:
             cls._pool = ThreadedConnectionPool(
-                minconn=cls.min_conn,
-                maxconn=cls.max_conn,
-                dsn=cls.dburl,
+                minconn=cls._config["min_conn"],
+                maxconn=cls._config["max_conn"],
+                dsn=cls._config["dburl"],
                 sslmode="require"
             )
-            logging.info(f"Connection to the database is successful: {cls.host}:{cls.port}/{cls.dbname}")
+            logging.info(f"Connection to the database is successful: {cls._config["host"]}:{cls._config["port"]}/{cls._config["dbname"]}")
         except Exception as e:
             logging.error(f"Error connecting to the database: {e}")
             raise
