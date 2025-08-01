@@ -2,14 +2,11 @@ from fastapi import APIRouter, HTTPException, Depends, Request, Header
 
 from db.users_db import Users
 from lib.models.schemas import *
-from lib.auth.utils import decode_token
+from lib.auth.utils import decode_token, get_users_service
 import psycopg2
 from db.database import DatabasePool
 
 router = APIRouter()
-
-def get_users_service(db_conn: psycopg2.extensions.connection = Depends(DatabasePool.get_connection())):
-    return Users(db_conn) 
 
 def get_current_user_id(authorization: str = Header(...)):
     if not authorization or not authorization.startswith("Bearer "):

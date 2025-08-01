@@ -1,4 +1,5 @@
 from pydantic import EmailStr
+from fastapi import HTTPException
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from db.database import DatabasePool
@@ -146,6 +147,44 @@ class Users:
             print(f"Error updating password for user {user_id}: {e}", end="\n\n======\n\n")
             self.db_conn.rollback()
             return False
+
+    def update_user_result(self, result: dict, user_id: int, game_id: int, scene_id: int, script_id: int):
+        user_data = self.get_user_data(user_id)
+        if not user_data:
+            DatabasePool.put_connection(self.db_conn)
+            raise HTTPException(status_code=404, detail="User data not found")
+        found_game = 0
+        for game_index in range(len(user_data.get("games", []))):
+            game = user_data["games"][game_index]
+            if str(game.get("id")) == str(game_id):
+                found_game = 1
+                found_scene = 0
+                for scene_index in range(len(game.get("scenes", []))):
+                    scene = game["scenes"][scene_index]
+                    if str(scene.get("id")) == str(scene_id):
+                        found_scene = 1
+                        found_script = 0
+                        for script_index in range(len(scene.get("scripts", []))):
+                            script = scene["scripts"][script_index]
+                            if str(script.get("id")) == str(script_id):
+                                user_data["games"][game_index]["scenes"][scene_index]["scripts"][script_index]["result"] = result
+                                found_script = 1
+                                break
+                        if not found_script:
+                            print("script_id не валидный", end="\n\n======\n\n")
+                            DatabasePool.put_connection(self.db_conn)
+                            raise HTTPException(status_code=400, detail="script_id не валидный")
+                        break
+                if not found_scene:
+                    print("scene_id не валидный", end="\n\n======\n\n")
+                    DatabasePool.put_connection(self.db_conn)
+                    raise HTTPException(status_code=400, detail="scene_id не валидный")
+                break
+        if not found_game:
+            print("game_id не валидный", end="\n\n======\n\n")
+            DatabasePool.put_connection(self.db_conn)
+            raise HTTPException(status_code=400, detail="game_id не валидный")
+        return self.update_user_data(user_id, user_data)
 
     def delete_user(self, user_id: int):
         try:

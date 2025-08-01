@@ -3,14 +3,10 @@ from lib.auth.auth import Auth
 from lib.models.schemas import UserRegisterRequest, UserLoginRequest, UserResponse
 from db.database import DatabasePool
 from typing import Optional
-from lib.auth.utils import decode_token
+from lib.auth.utils import decode_token, get_auth_service
 import psycopg2
 
 router = APIRouter()
-
-
-def get_auth_service(db_conn: psycopg2.extensions.connection = Depends(DatabasePool.get_connection())):
-    return Auth(db_conn) 
 
 @router.post("/register", tags=["Auth"])
 def register(user: UserRegisterRequest, auth_service: Auth = Depends(get_auth_service)):
