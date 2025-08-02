@@ -1,5 +1,6 @@
 import psycopg2
-from psycopg2.pool import ThreadedConnectionPool
+from psycopg2.pool import ThreadedConnectionPool, PoolError
+from fastapi import HTTPException
 from psycopg2.extras import RealDictCursor
 import json
 import logging
@@ -7,9 +8,7 @@ import os
 from dotenv import load_dotenv
 from urllib.parse import urlparse
 from fastapi import Depends
-
-load_dotenv()
-
+from contextlib import contextmanager
 
 logging.basicConfig(
     level=logging.INFO,
@@ -17,6 +16,7 @@ logging.basicConfig(
     filename='db.log',
     filemode='a'
 )
+
 class DatabasePool:
     _pool = None
     _config = None
@@ -43,9 +43,9 @@ class DatabasePool:
                 dsn=cls._config["dburl"],
                 sslmode="require"
             )
-            logging.info(f"Connection to the database is successful: {cls._config["host"]}:{cls._config["port"]}/{cls._config["dbname"]}")
+            logging.info(f"Pool connected: {cls._config}")
         except Exception as e:
-            logging.error(f"Error connecting to the database: {e}")
+            logging.error(f"Pool connection failed: {e}")
             raise
 
     @classmethod
@@ -54,51 +54,26 @@ class DatabasePool:
             cls.init_pool()
 
     @classmethod
-    def get_connection(cls):
+    @contextmanager
+    def connection(cls):
         cls.check_pool()
-        return cls._pool.getconn()
-    
-    @classmethod
-    def put_connection(cls, conn):
-        cls.check_pool()
-        return cls._pool.putconn(conn)
-    
+        try:
+            conn = cls._pool.getconn()
+            logging.debug(f"Connection acquired ({len(cls._pool._used)} used, {len(cls._pool._rused)} free)")
+            yield conn
+        except PoolError as e:
+            logging.error(f"Pool exhausted: {e}")
+            raise HTTPException(503, detail="Database is overloaded")
+        finally:
+            try:
+                if 'conn' in locals() and not conn.closed:
+                    cls._pool.putconn(conn)
+                    logging.debug(f"Connection returned ({len(cls._pool._used)} used, {len(cls._pool._rused)} free)")
+            except Exception as e:
+                logging.error(f"Error returning connection: {e}")
+
+
     @classmethod
     def close_all(cls, conn):
-        cls.check_pool()
-        return cls._pool.putconn(conn)
-    
-    # @classmethod
-    # def get_cls_service(cls, target_cls):
-    #     db_conn = cls.get_connection()
-    #     return target_cls(db_conn)
-
-
-# class Database:
-#     def __init__(self):
-#         self.dbres = os.getenv('DATABASE_URL')
-#         self.dbname = os.getenv('DB_NAME')
-#         self.user = os.getenv('DB_USER')
-#         self.password = os.getenv('DB_PASSWORD')
-#         self.host = os.getenv('DB_HOST')
-#         self.port = int(os.getenv('DB_PORT'))
-
-#         try:
-#             self.db_params = urlparse(self.dbres)
-#             self.conn = psycopg2.connect(
-#                 self.dbres,
-#                 sslmode = "require"
-#             )
-#             self.cursor = self.conn.cursor(cursor_factory=RealDictCursor)
-#             logging.info(f"Connection to the database is successful: {self.host}:{self.port}/{self.dbname}")
-#         except Exception as e:
-#             logging.error(f"Error connecting to the database: {e}")
-#             raise
-
-#     def close(self):
-#         try:
-#             self.cursor.close()
-#             self.conn.close()
-#             logging.info("The database connection is closed")
-#         except Exception as e:
-#             logging.error(f"Error closing the connection: {e}")
+        if cls._pool:
+            cls._pool.closeall()
