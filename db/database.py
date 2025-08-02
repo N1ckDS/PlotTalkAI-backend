@@ -74,6 +74,6 @@ class DatabasePool:
 
 
     @classmethod
-    def close_all(cls, conn):
+    def close_all(cls):
         if cls._pool:
             cls._pool.closeall()

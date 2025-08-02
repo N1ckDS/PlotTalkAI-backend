@@ -36,7 +36,7 @@ def generate(params: Params, user_id: int = Depends(get_current_user_id), users_
         print("scene_id должен быть передан в params или я в чем-то ошибся, анлак", end="\n\n======\n\n")
         raise HTTPException(status_code=400, detail="scene_id должен быть передан в params или я в чем-то ошибся, анлак")
     success = users_service.update_user_result({}, user_id, game_id, scene_id, script_id)
-   
+    
     if not success:
         raise HTTPException(status_code=500, detail="Failed to update user data")
     
