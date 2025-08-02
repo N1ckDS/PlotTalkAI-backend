@@ -19,8 +19,8 @@ def get_auth_service():
         yield Auth(conn)
 
 def get_db_retry():
-    max_attempts = os.getenv('MAX_DATABASE_TRANSACTION_ATEMPTS')
-    max_wait_time = os.getenv('MAX_DATABASE_TRANSACTION_WAIT_TIME')
+    max_attempts = int(os.getenv('MAX_DATABASE_TRANSACTION_ATEMPTS'))
+    max_wait_time = int(os.getenv('MAX_DATABASE_TRANSACTION_WAIT_TIME'))
     return retry(
         stop=stop_after_attempt(max_attempts),
         wait=wait_fixed(max_wait_time)
