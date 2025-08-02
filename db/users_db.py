@@ -151,7 +151,7 @@ class Users:
             return False
 
     def update_user_result(self, result: dict, user_id: int, game_id: int, scene_id: int, script_id: int):
-        print(game_id/scene_id/script_id)
+        print("game_id/scene_id/script_id")
         user_data = self.get_user_data(user_id)
         if not user_data:
             raise HTTPException(status_code=404, detail="User data not found")
