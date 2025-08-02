@@ -2,7 +2,6 @@ from pydantic import EmailStr
 from fastapi import HTTPException
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from db.database import DatabasePool
 from db.logging import logger
 import json 
 
@@ -154,7 +153,6 @@ class Users:
     def update_user_result(self, result: dict, user_id: int, game_id: int, scene_id: int, script_id: int):
         user_data = self.get_user_data(user_id)
         if not user_data:
-            DatabasePool.put_connection(self.db_conn)
             raise HTTPException(status_code=404, detail="User data not found")
         if isinstance(user_data, str):
             user_data = json.loads(user_data)
@@ -177,19 +175,17 @@ class Users:
                                 break
                         if not found_script:
                             print("script_id не валидный", end="\n\n======\n\n")
-                            DatabasePool.put_connection(self.db_conn)
+    
                             raise HTTPException(status_code=400, detail="script_id не валидный")
                         break
                 if not found_scene:
                     print("scene_id не валидный", end="\n\n======\n\n")
-                    DatabasePool.put_connection(self.db_conn)
                     raise HTTPException(status_code=400, detail="scene_id не валидный")
                 break
         if not found_game:
             print("game_id не валидный", end="\n\n======\n\n")
-            DatabasePool.put_connection(self.db_conn)
             raise HTTPException(status_code=400, detail="game_id не валидный")
-        return self.update_user_data(user_id, user_data)
+        self.update_user_data(user_id, user_data)
 
     def delete_user(self, user_id: int):
         try:

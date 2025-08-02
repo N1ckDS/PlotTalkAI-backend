@@ -18,23 +18,20 @@ class Auth:
                 password_hash = hash_password(password)
                 user_id = self.users_service.reactivate_user(mail, name, surname, password_hash)
                 return user_id, None
-            DatabasePool.put_connection(self.db_conn)
             raise HTTPException(400, detail="User already exists")
         password_hash = hash_password(password)
         user_id = self.users_service.create_user(mail, name, surname, password_hash)
         if user_id is None:
-            DatabasePool.put_connection(self.db_conn)
             raise HTTPException(500, detail="Failed to create user")
         return user_id, None
 
     def login(self, mail, password):
         user = self.users_service.get_user_by_mail(mail)
         print(mail, password, user) 
+<<<<<<< Updated upstream
         if not user:
-            DatabasePool.put_connection(self.db_conn)
             raise HTTPException(401, detail="User not found")
         if not verify_password(password, user['password_hash']):
-            DatabasePool.put_connection(self.db_conn)
             raise HTTPException(401, detail="Wrong password")
         user_response = UserResponse(
             id=user["id"],
