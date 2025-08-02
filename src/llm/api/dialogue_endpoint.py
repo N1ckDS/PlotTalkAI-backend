@@ -234,6 +234,7 @@ def generate(params: Params, user_id: int = Depends(get_current_user_id), users_
     }
     time.sleep(5)
     print(f"Generated script {game_id}/{scene_id}/{script_id} for user: {user_id}", end="\n\n======\n\n")                
-    users_service.update_user_result(a, user_id, game_id, scene_id, script_id)
-
+    success = users_service.update_user_result(a, user_id, game_id, scene_id, script_id)
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to update user data")
     return {"ok": True}

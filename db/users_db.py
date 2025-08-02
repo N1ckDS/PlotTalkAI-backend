@@ -151,6 +151,7 @@ class Users:
             return False
 
     def update_user_result(self, result: dict, user_id: int, game_id: int, scene_id: int, script_id: int):
+        print(game_id/scene_id/script_id)
         user_data = self.get_user_data(user_id)
         if not user_data:
             raise HTTPException(status_code=404, detail="User data not found")
@@ -175,7 +176,6 @@ class Users:
                                 break
                         if not found_script:
                             print("script_id не валидный", end="\n\n======\n\n")
-    
                             raise HTTPException(status_code=400, detail="script_id не валидный")
                         break
                 if not found_scene:
@@ -185,7 +185,7 @@ class Users:
         if not found_game:
             print("game_id не валидный", end="\n\n======\n\n")
             raise HTTPException(status_code=400, detail="game_id не валидный")
-        self.update_user_data(user_id, user_data)
+        return self.update_user_data(user_id, user_data)
 
     def delete_user(self, user_id: int):
         try:
