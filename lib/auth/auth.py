@@ -28,11 +28,7 @@ class Auth:
     def login(self, mail, password):
         user = self.users_service.get_user_by_mail(mail)
         print(mail, password, user) 
-<<<<<<< Updated upstream
-        if not user:
-=======
         if not user: 
->>>>>>> Stashed changes
             raise HTTPException(401, detail="User not found")
         if not verify_password(password, user['password_hash']):
             raise HTTPException(401, detail="Wrong password")
