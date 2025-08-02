@@ -6,12 +6,9 @@ import jwt
 from dotenv import load_dotenv
 from jose import JWTError
 from jose import jwt as jose_jwt
-import psycopg2
-from db.database import DatabasePool
-from fastapi import Depends
-from db.users_db import Users
+from fastapi import Header, HTTPException
 
-load_dotenv()
+load_dotenv(override=True)
 
 ACCESS_EXPIRE_MINUTES = 60
 
@@ -48,5 +45,16 @@ def decode_token(token: str):
         return payload
     except JWTError as e:
         raise ValueError("Invalid token") from e
-    
 
+def get_current_user_id(authorization: str = Header(...)):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing or invalid token")
+    token = authorization.split(" ", 1)[1]
+    try:
+        payload = decode_token(token)
+        user_id = payload.get("id")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token payload")
+        return user_id
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid token")

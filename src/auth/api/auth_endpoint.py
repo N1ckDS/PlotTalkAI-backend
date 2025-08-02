@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, Header
 from lib.auth.auth import Auth
 from lib.models.schemas import UserRegisterRequest, UserLoginRequest, UserResponse
-from db.database import DatabasePool
 from typing import Optional
 from lib.auth.utils import decode_token
 import psycopg2
@@ -19,14 +18,12 @@ def register(user: UserRegisterRequest, auth_service: Auth = Depends(get_auth_se
         raise HTTPException(status_code=500, detail=error)
     if error:
         raise HTTPException(status_code=422, detail=error)
-    DatabasePool.put_connection(auth_service.db_conn)
     return UserResponse(id=user_id, mail=user.mail, name=user.name, surname=user.surname)
     
 
 @router.post("/login", tags=["Auth"])
 def login(user: UserLoginRequest, auth_service: Auth = Depends(get_auth_service)):
     login_res = auth_service.login(user.mail, user.password)
-    DatabasePool.put_connection(auth_service.db_conn)
     return login_res
 
 @router.get("/protected", tags=["Auth"])

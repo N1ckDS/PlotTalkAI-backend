@@ -2,7 +2,6 @@ import os
 from datetime import datetime, timedelta
 from lib.auth.utils import hash_password, verify_password, create_access_token
 from lib.models.schemas import UserResponse
-from db.database import DatabasePool
 from db.users_db import Users
 from fastapi import HTTPException
 
