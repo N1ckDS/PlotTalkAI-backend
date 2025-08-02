@@ -23,7 +23,7 @@ class DatabasePool:
     @classmethod
     def init_pool(cls):
         cls._config = {
-            'dburl': os.getenv('DATABASE_URL'),
+            'dburl': os.getenv('DATABASE_URL')+"?pgbouncer_mode=transaction",
             'dbname': os.getenv('DB_NAME'),
             'user': os.getenv('DB_USER'),
             'password': os.getenv('DB_PASSWORD'),
