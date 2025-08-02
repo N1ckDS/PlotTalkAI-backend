@@ -3,7 +3,7 @@ from lib.models.schemas import Params
 from lib.llm.generator import Orchestrator
 from db.database import DatabasePool
 from db.users_db import Users
-from src.db.api.db_endpoint import get_current_user_id
+from lib.auth.utils import get_current_user_id
 import psycopg2
 import json 
 import time
