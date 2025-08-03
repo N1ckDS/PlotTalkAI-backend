@@ -102,7 +102,7 @@ class Users:
                 # new_data = new_data["data"] if new_data.get("data") else new_data
                 curs.execute(
                     "UPDATE users_data SET data = %s WHERE id = %s;",
-                    (new_data, user_id)
+                    (json.dumps(new_data), user_id)
                 )
                 self.db_conn.commit()
                 logger.info(f"Updated data for user {user_id}")
