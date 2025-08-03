@@ -66,6 +66,3 @@ class UserUpdateName(BaseModel):
 
 class UserUpdatePassword(BaseModel):
     password_hash: str
-
-class UserUpdateData(BaseModel):
-    data: Dict
