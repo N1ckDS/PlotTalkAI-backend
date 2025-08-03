@@ -89,8 +89,8 @@ class Users:
                 curs.execute("SELECT data FROM users_data WHERE id = %s;", (user_id,))
                 row = curs.fetchone()
                 logger.info(f"Received data for user {user_id}")
-                print(f"Received data for user: {user_id}", row.get("data") if row else None, sep = "\n", end="\n\n======\n\n")
-                return row.get("data") if row else None
+                print(f"Received data for user: {user_id}", row.get("data") if isinstance(row, dict) else None, sep = "\n", end="\n\n======\n\n")
+                return row.get("data") if isinstance(row, dict) else None
         except Exception as e:
             logger.error(f"Error when receiving data for user {user_id}: {e}")
             print(f"Error when receiving data for user {user_id}: {e}", end="\n\n======\n\n")
