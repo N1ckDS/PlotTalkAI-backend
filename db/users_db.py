@@ -99,9 +99,10 @@ class Users:
     def update_user_data(self, user_id: int, new_data: dict):
         try:
             with self.db_conn.cursor(cursor_factory=RealDictCursor) as curs:
+                # new_data = new_data["data"] if new_data.get("data") else new_data
                 curs.execute(
                     "UPDATE users_data SET data = %s WHERE id = %s;",
-                    (json.dumps(new_data), user_id)
+                    (new_data, user_id)
                 )
                 self.db_conn.commit()
                 logger.info(f"Updated data for user {user_id}")
@@ -157,25 +158,33 @@ class Users:
             raise HTTPException(status_code=404, detail="User data not found")
         if isinstance(user_data, str):
             user_data = json.loads(user_data)
+        print(user_data)
+        print("Новый result:", result)
         found_game = 0
         for game_index in range(len(user_data.get("games", []))):
             game = user_data["games"][game_index]
+            print(str(game.get("id")))
             if str(game.get("id")) == str(game_id):
                 found_game = 1
                 found_scene = 0
+                print("found game")
                 for scene_index in range(len(game.get("scenes", []))):
                     scene = game["scenes"][scene_index]
+                    print(str(scene.get("id")))
                     if str(scene.get("id")) == str(scene_id):
+                        print("found scene")
                         found_scene = 1
                         found_script = 0
                         for script_index in range(len(scene.get("scripts", []))):
                             script = scene["scripts"][script_index]
+                            print(str(script.get("id")))
                             if str(script.get("id")) == str(script_id):
+                                print("found script")
                                 user_data["games"][game_index]["scenes"][scene_index]["scripts"][script_index]["result"] = result
                                 found_script = 1
                                 break
                         if not found_script:
-                            print("script_id не валидный", end="\n\n======\n\n")
+                            print("script_id не валидный", end="\n\n======\n\n")    
                             raise HTTPException(status_code=400, detail="script_id не валидный")
                         break
                 if not found_scene:
