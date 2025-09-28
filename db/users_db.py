@@ -89,8 +89,13 @@ class Users:
                 curs.execute("SELECT data FROM users_data WHERE id = %s;", (user_id,))
                 row = curs.fetchone()
                 logger.info(f"Received data for user {user_id}")
-                print(f"Received data for user: {user_id}", row.get("data") if isinstance(row, dict) else None, sep = "\n", end="\n\n======\n\n")
-                return row.get("data") if isinstance(row, dict) else None
+                data = row.get("data") if isinstance(row, dict) else None
+                if data:
+                    # Если данные приходят как строка JSON, парсим их
+                    if isinstance(data, str):
+                        data = json.loads(data)
+                    print(f"Received data for user: {user_id}", data, sep = "\n", end="\n\n======\n\n")
+                return data
         except Exception as e:
             logger.error(f"Error when receiving data for user {user_id}: {e}")
             print(f"Error when receiving data for user {user_id}: {e}", end="\n\n======\n\n")
@@ -156,8 +161,6 @@ class Users:
         user_data = self.get_user_data(user_id)
         if not user_data:
             raise HTTPException(status_code=404, detail="User data not found")
-        if isinstance(user_data, str):
-            user_data = json.loads(user_data)
         print(user_data)
         print("Новый result:", result)
         found_game = 0

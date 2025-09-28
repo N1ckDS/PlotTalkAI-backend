@@ -25,12 +25,12 @@ def get_user_data(user_id: int = Depends(get_current_user_id), users_service: Us
         raise HTTPException(status_code=404, detail="User not found")
     data = users_service.get_user_data(user_id)
     if data:
-        return {"data": data}
+        return data
     raise HTTPException(status_code=404, detail="User data not found")
 
 @router.put("/users/me/upd/data", tags=["Users"])
 @db_retry_decorator
-def update_user_data(new_data: dict, user_id: int = Depends(get_current_user_id), users_service: Users = Depends(get_users_service)):
+def update_user_data(new_data: UserDataUpdate, user_id: int = Depends(get_current_user_id), users_service: Users = Depends(get_users_service)):
     print(f"Updating data for user: {user_id}", new_data, sep = "...\n", end="\n\n======\n\n")
     user_data = users_service.get_user_data(user_id)
     if not user_data:
