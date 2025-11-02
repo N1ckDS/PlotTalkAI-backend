@@ -42,8 +42,8 @@ def get_prev_dialog_chains(dialog_graph, node):
         if len(path) < 2 or not dialog_graph.edges[path[-2], path[-1]].get("line"):
             continue
         for ind in range(0, len(path)-1):
-            dialog_chain += f"**NPC**: {dialog_graph.nodes[path[ind]]["line"]}\n"
-            dialog_chain += f"**Игрок**: {dialog_graph.edges[path[ind], path[ind+1]]["line"]}\n"
+            dialog_chain += f"**NPC**: {dialog_graph.nodes[path[ind]]['line']}\n"
+            dialog_chain += f"**Игрок**: {dialog_graph.edges[path[ind], path[ind+1]]['line']}\n"
         prev_dialog_chains.append(dialog_chain)
     return prev_dialog_chains
 
@@ -277,7 +277,7 @@ class DialogGenerator(DialogSettings):
                     max_tokens=self.model_max_tokens_dialogue_generation
                 )
                 edges_content = json.loads(edges_content_response.choices[0].message.content)["lines"]
-                print(f"{t}. Q: {dialog_graph.nodes[t]["line"]}, A: {edges_content}")
+                print(f"{t}. Q: {dialog_graph.nodes[t]['line']}, A: {edges_content}")
                 # print("--answers--")
                 # print(edges_content)
                 for line in edges_content:
@@ -480,7 +480,7 @@ class DialogValidator(DialogSettings):
             if not self.validate_node_line(dialog_graph, prev_dialog_chains, t, used):
                 continue
             for i in range(0, len(prev_dialog_chains)):
-                prev_dialog_chains[i] += f"**NPC**: {dialog_graph.nodes[t]["line"]}\n"
+                prev_dialog_chains[i] += f"**NPC**: {dialog_graph.nodes[t]['line']}\n"
             for next_node in next_nodes:
                 # print((node, next_node), dialog_graph.edges[node, next_node]["line"])               
                 if not dialog_graph.edges[t, next_node].get("need_regeneration") and self.validate_edge_line(dialog_graph, prev_dialog_chains, (t, next_node), used) and next_node not in used:
@@ -491,7 +491,7 @@ class DialogRegenerator(DialogSettings):
     def convert_metrics(self, metrics):
         result = ""
         for metric in metrics:
-            result += f"{metric} ({metrics[metric]["rate"]}/10) - {metrics[metric]["comment"]}\n\n=====\n\n"
+            result += f"{metric} ({metrics[metric]['rate']}/10) - {metrics[metric]['comment']}\n\n=====\n\n"
         return result
 
     def regenerate_structure(self, structure, metrics):
@@ -624,7 +624,7 @@ class DialogRegenerator(DialogSettings):
             else:
                 bst_edges_content_rate = 0
             for i in range(0, len(prev_dialog_chains)):
-                prev_dialog_chains[i] += f"**NPC**: {dialog_graph.nodes[t]["line"]}\n"
+                prev_dialog_chains[i] += f"**NPC**: {dialog_graph.nodes[t]['line']}\n"
             validation_edges_cnt = 0
             while len(next_required_nodes) and validation_edges_cnt < 3:
                 with open("resources/prompt_edges_content.txt", encoding='utf-8', mode="r") as prompt_edges_content:
