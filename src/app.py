@@ -34,7 +34,8 @@ app = FastAPI(
         {"name": "Dialogue", "description": "Генерация диалогов"},
         {"name": "Database", "description": "Операции с базой данных"},
         {"name": "Health", "description": "Проверка состояния сервиса"}
-    ]
+    ],
+    lifespan=lifespan
 )
 
 # Добавляем схему безопасности в OpenAPI
