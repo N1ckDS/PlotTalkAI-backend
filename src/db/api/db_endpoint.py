@@ -8,7 +8,7 @@ from db.database import DatabasePool
 
 router = APIRouter()
 
-def get_users_service(db_conn: Connection = Depends(DatabasePool.get_connection())):
+def get_users_service(db_conn: Connection = Depends(DatabasePool.get_connection)):
     return Users(db_conn) 
 
 def get_current_user_id(authorization: str = Header(...)):
