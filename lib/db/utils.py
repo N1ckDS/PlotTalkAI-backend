@@ -19,8 +19,8 @@ def get_auth_service():
         yield Auth(conn)
 
 def get_db_retry():
-    max_attempts = int(os.getenv('MAX_DATABASE_TRANSACTION_ATEMPTS'))
-    max_wait_time = int(os.getenv('MAX_DATABASE_TRANSACTION_WAIT_TIME'))
+    max_attempts = int(os.getenv('MAX_DATABASE_TRANSACTION_ATEMPTS', '3'))
+    max_wait_time = int(os.getenv('MAX_DATABASE_TRANSACTION_WAIT_TIME', '1'))
     return retry(
         stop=stop_after_attempt(max_attempts),
         wait=wait_fixed(max_wait_time)
@@ -36,6 +36,13 @@ def db_retry_decorator(func):
             logging.error(f"Database overload after multiple retries: {e}")
             raise HTTPException(
                 status_code=503,
-                detail="Database overload after multiple retries"
+                detail=f"Database overload after multiple retries: {str(e)}"
+            )
+        except Exception as e:
+            # Логируем другие ошибки базы данных
+            logging.error(f"Database error in {func.__name__}: {e}")
+            raise HTTPException(
+                status_code=503,
+                detail=f"Database error: {str(e)}"
             )
     return wrapper

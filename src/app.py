@@ -5,11 +5,63 @@ from src.auth.api.auth_endpoint import router as auth_router
 from fastapi.middleware.cors import CORSMiddleware
 from src.db.api.db_endpoint import router as db_router
 from src.healthz import router as healthz_router
+from fastapi.security import HTTPBearer
 from dotenv import load_dotenv
 # from contextlib import asynccontextmanager
 
 load_dotenv(override=True)
-app = FastAPI(title="Screenwriter Dialogue API")
+
+# Настройка схемы безопасности для JWT
+security_scheme = HTTPBearer()
+
+app = FastAPI(
+    title="Screenwriter Dialogue API",
+    description="API для генерации диалогов с JWT аутентификацией",
+    version="1.0.0",
+    openapi_tags=[
+        {"name": "Auth", "description": "Операции аутентификации"},
+        {"name": "Dialogue", "description": "Генерация диалогов"},
+        {"name": "Database", "description": "Операции с базой данных"},
+        {"name": "Health", "description": "Проверка состояния сервиса"}
+    ]
+)
+
+# Добавляем схему безопасности в OpenAPI
+app.openapi_schema = None  # Сбрасываем кэш схемы
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    
+    from fastapi.openapi.utils import get_openapi
+    openapi_schema = get_openapi(
+        title=app.title,
+        version=app.version,
+        description=app.description,
+        routes=app.routes,
+    )
+    
+    # Добавляем схему безопасности
+    openapi_schema["components"]["securitySchemes"] = {
+        "bearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
+            "description": "Введите ваш JWT токен"
+        }
+    }
+    
+    # Применяем схему безопасности к защищенным эндпоинтам
+    for path in openapi_schema["paths"]:
+        if path.startswith("/api/generate") or path.startswith("/api/users") or path.startswith("/api/get"):
+            for method in openapi_schema["paths"][path]:
+                if method in ["get", "post", "put", "delete"]:
+                    openapi_schema["paths"][path][method]["security"] = [{"bearerAuth": []}]
+    
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
 
 @app.on_event("startup")
 async def startup_event():

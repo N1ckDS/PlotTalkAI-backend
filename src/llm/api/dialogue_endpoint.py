@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, Header, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Header, HTTPException, Security
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from lib.models.schemas import Params
 from lib.llm.generator import Orchestrator
 from db.database import DatabasePool
@@ -20,7 +21,7 @@ class DialogueController:
 
 dialogue_controller = DialogueController()
 
-@router.post("/generate", tags=["Dialogue"])
+@router.post("/generate", tags=["Dialogue"], summary="Генерация диалога")
 def generate(params: Params, user_id: int = Depends(get_current_user_id), users_service: Users = Depends(get_users_service)):
     
     game_id = params.game_id

@@ -30,7 +30,8 @@ class DatabasePool:
             'host': os.getenv('DB_HOST'),
             'port': int(os.getenv('DB_PORT', 5432)),
             'min_conn': int(os.getenv('MIN_CONN', 1)),
-            'max_conn': int(os.getenv('MAX_CONN', 10))
+            'max_conn': int(os.getenv('MAX_CONN', 10)),
+            'sslmode': os.getenv('DB_SSLMODE', 'prefer')  # Изменено с 'require' на 'prefer'
         }
         cls.connect_pool()
     
@@ -43,9 +44,11 @@ class DatabasePool:
                 dsn=cls._config["dburl"],
                 sslmode="require"
             )
-            logging.info(f"Pool connected: {cls._config}")
+            logging.info(f"Pool connected successfully")
+            logging.info(f"Config: min_conn={cls._config['min_conn']}, max_conn={cls._config['max_conn']}, sslmode={cls._config['sslmode']}")
         except Exception as e:
             logging.error(f"Pool connection failed: {e}")
+            logging.error(f"Config: {cls._config}")
             raise
 
     @classmethod

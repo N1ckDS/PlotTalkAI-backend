@@ -12,10 +12,19 @@ load_dotenv(override=True)
 
 ACCESS_EXPIRE_MINUTES = 60
 
-PRIVATE_KEY = os.getenv("PRIVATE_SECRET_KEY").replace("\\n", "\n")
-PUBLIC_KEY = os.getenv("PUBLIC_SECRET_KEY").replace("\\n", "\n")
+PRIVATE_KEY = os.getenv("PRIVATE_SECRET_KEY")
+if PRIVATE_KEY:
+    PRIVATE_KEY = PRIVATE_KEY.replace("\\n", "\n")
+else:
+    print("WARNING: PRIVATE_SECRET_KEY not found in environment variables")
 
-ALGORITHM = os.getenv("ALGORITHM")
+PUBLIC_KEY = os.getenv("PUBLIC_SECRET_KEY")
+if PUBLIC_KEY:
+    PUBLIC_KEY = PUBLIC_KEY.replace("\\n", "\n")
+else:
+    print("WARNING: PUBLIC_SECRET_KEY not found in environment variables")
+
+ALGORITHM = os.getenv("ALGORITHM", "RS256")
 
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
@@ -40,21 +49,29 @@ def encode_jwt(payload: dict,
     return encoded
 
 def decode_token(token: str):
+    if not PUBLIC_KEY:
+        raise ValueError("PUBLIC_KEY not configured")
+    if not ALGORITHM:
+        raise ValueError("ALGORITHM not configured")
+    
     try:
         payload = jose_jwt.decode(token, PUBLIC_KEY, algorithms=[ALGORITHM])
         return payload
     except JWTError as e:
         raise ValueError("Invalid token") from e
 
-def get_current_user_id(authorization: str = Header(...)):
+def get_current_user_id(authorization: str = Header(..., alias="Authorization")):
     if not authorization or not authorization.startswith("Bearer "):
+        print("Missing or invalid token")
         raise HTTPException(status_code=401, detail="Missing or invalid token")
     token = authorization.split(" ", 1)[1]
     try:
         payload = decode_token(token)
         user_id = payload.get("id")
         if not user_id:
+            print("Invalid token payload")
             raise HTTPException(status_code=401, detail="Invalid token payload")
         return user_id
-    except Exception:
-        raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception as e:
+        print(f"Token validation error: {str(e)}")
+        raise HTTPException(status_code=401, detail=f"Token validation error: {str(e)}")

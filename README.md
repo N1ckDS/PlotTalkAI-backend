@@ -108,16 +108,25 @@ MODEL_MAX_TOKENS_DIALOGUE_VALIDATION=8192
 MODEL_MAX_TOKENS_STRUCTURE_REGENERATION=20000
 MODEL_MAX_TOKENS_DIALOGUE_REGENERATION=8192
 
-# Database
+# Database (можно использовать либо DATABASE_URL, либо отдельные параметры)
+DATABASE_URL=postgresql://user:password@host:port/dbname
+# ИЛИ отдельные параметры:
 DB_NAME=your_db
 DB_USER=your_user
 DB_PASSWORD=your_password
 DB_HOST=localhost
 DB_PORT=5432
+DB_SSLMODE=prefer
+MIN_CONN=1
+MAX_CONN=10
 
 # JWT
 ALGORITHM=RS256
 # Ключи хранятся в certs/private.pem и certs/public.pem
+
+# Database retry configuration
+MAX_DATABASE_TRANSACTION_ATEMPTS=3
+MAX_DATABASE_TRANSACTION_WAIT_TIME=1
 
 # Прочее
 APP_ENV=development
