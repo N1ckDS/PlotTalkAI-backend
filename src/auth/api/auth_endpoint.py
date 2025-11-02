@@ -9,7 +9,7 @@ from psycopg2.extensions import connection as Connection
 router = APIRouter()
 
 
-def get_auth_service(db_conn: Connection = Depends(DatabasePool.get_connection())):
+def get_auth_service(db_conn: Connection = Depends(DatabasePool.get_connection)):
     return Auth(db_conn) 
 
 @router.post("/register", tags=["Auth"])
