@@ -24,7 +24,9 @@ dialogue_controller = DialogueController()
 
 @router.post("/generate", tags=["Dialogue"])
 def generate(params: Params, user_id: int = Depends(get_current_user_id)):
-    users_service = get_users_service()
+    # берём соединение из пула
+    db_conn = DatabasePool.get_connection()
+    users_service = Users(db_conn)
     # a = dialogue_controller.generate(params)
     a = {
     "data": [
@@ -227,7 +229,7 @@ def generate(params: Params, user_id: int = Depends(get_current_user_id)):
     print(f"Generated  script for user: {user_id}", a, sep = "\n", end="\n\n======\n\n")
     user_data = users_service.get_user_data(user_id)
     if not user_data:
-        DatabasePool.put_connection(users_service.db_conn)
+        DatabasePool.put_connection(db_conn)
         raise HTTPException(status_code=404, detail="User data not found")
 
     if isinstance(user_data, str):
@@ -282,21 +284,21 @@ def generate(params: Params, user_id: int = Depends(get_current_user_id)):
                             break
                     if not found_script:
                         print("script_id не валидный", end="\n\n======\n\n")
-                        DatabasePool.put_connection(users_service.db_conn)
+                        DatabasePool.put_connection(db_conn)
                         raise HTTPException(status_code=400, detail="script_id не валидный")
                     break
             if not found_scene:
                 print("scene_id не валидный", end="\n\n======\n\n")
-                DatabasePool.put_connection(users_service.db_conn)
+                DatabasePool.put_connection(db_conn)
                 raise HTTPException(status_code=400, detail="scene_id не валидный")
             break
     if not found_game:
         print("game_id не валидный", end="\n\n======\n\n")
-        DatabasePool.put_connection(users_service.db_conn)
+        DatabasePool.put_connection(db_conn)
         raise HTTPException(status_code=400, detail="game_id не валидный")
                         
     success = users_service.update_user_data(user_id, user_data)
-    DatabasePool.put_connection(users_service.db_conn)
+    DatabasePool.put_connection(db_conn)
     if not success:
         raise HTTPException(status_code=500, detail="Failed to update user data")
     
