@@ -582,7 +582,7 @@ class DialogRegenerator(DialogSettings):
                     mood=dialog_graph.nodes[t]["mood"],
                     relation=self.params["NPC_to_hero_relation"],
                     line = dialog_graph.nodes[t]["line"],
-                    comments = self.convert_metrics(dialog_graph.nodes[t].get(["validation_result"]))
+                    comments = self.convert_metrics(dialog_graph.nodes[t].get("validation_result"))
                 )
                 with open("prompt_nodes_content_regen_res.txt", mode = "w", encoding="utf-8") as file:
                     file.write(prompt_nodes_content)
